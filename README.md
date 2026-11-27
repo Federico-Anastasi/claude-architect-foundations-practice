@@ -1,76 +1,72 @@
 # Claude Certified Architect – Foundations · practice
 
-*English summary.* An unofficial study page for the Claude Certified Architect – Foundations exam (code CCAR-F):
-condensed theory, 464 practice and mock-exam questions in English with explanations in Italian, timed simulations
-and error review. One static HTML file, no install, no server. It can also serve as a template for another
-multiple-choice exam: replace the question files and the theory section.
+An **unofficial** study page for the Claude Certified Architect – Foundations exam (exam code CCAR-F): condensed
+theory, practice questions, timed mock exams and error review. One static HTML file: no install, no server.
 
----
+The questions are in English, like the guide's sample questions. The interface, the theory and the explanations are
+in Italian.
 
-Pagina di studio **non ufficiale** per l'esame Claude Certified Architect – Foundations (codice CCAR-F): teoria in
-sintesi, domande di allenamento, simulazioni d'esame a tempo e ripasso degli errori. Un solo file HTML statico, senza
-installazione e senza server.
+## How to use it
 
-## Come si usa
+Download the repository (or *Code → Download ZIP*) and open `index.html` in a browser. Sections:
 
-Scarica la repository (o *Code → Download ZIP*) e apri `index.html` nel browser. Le sezioni:
+- **Teoria** (theory): the exam heuristics and the guide's 5 domains, condensed, with the recurring traps.
+- **Allenamento** (practice): one question at a time with immediate feedback, filtered by scenario, domain, or only
+  the ones you got wrong.
+- **Simulazione** (mock exam): 4 scenarios out of 6, 60 questions in 120 minutes, scored at submission; a short
+  version has 30 questions in 60 minutes. It uses a separate question bank that never appears in practice, and serves
+  questions you have never seen first.
+- **Errori** (mistakes): the questions you got wrong last time, until you get them right.
 
-- **Teoria**: le euristiche d'esame e i 5 domini della guida, in sintesi, con le trappole ricorrenti.
-- **Allenamento**: una domanda alla volta con correzione immediata, filtrabile per scenario, dominio o solo sbagliate.
-- **Simulazione**: 4 scenari su 6, 60 domande in 120 minuti, correzione alla consegna; versione breve da 30 domande
-  in 60 minuti. Usa una banca separata, che non compare mai in allenamento, e propone prima le domande mai viste.
-- **Errori**: le domande sbagliate l'ultima volta, finché non le azzecchi.
+Progress is kept in the browser's `localStorage`: no account, nothing sent anywhere.
 
-I progressi restano nel `localStorage` del browser che usi: niente account, niente dati inviati altrove.
+The official exam reports a scaled score (720 on 100–1,000), not a percentage: the page uses 75–80% correct answers
+as a cautious target.
 
-Le domande sono in inglese, come gli esempi della guida; le spiegazioni sono in italiano. L'esame ufficiale dà la
-soglia come punteggio scalato (720 su 100–1.000), non come percentuale: la pagina usa il 75–80% di risposte giuste
-come obiettivo prudente.
+## The questions
 
-## Le domande
-
-| File | Banca | Domande |
+| Files | Bank | Questions |
 |---|---|---|
-| `domande/s1.js` … `s6.js` | allenamento, di cui 12 domande d'esempio della guida | 116 |
-| `domande/s1n.js` … `s6n.js` | allenamento | 120 |
-| `domande/sim1.js` … `sim6.js` | simulazione | 180 |
-| `domande/hard1.js` … `hard6.js` | simulazione, difficili | 48 |
+| `domande/s1.js` … `s6.js` | practice, including the guide's 12 sample questions | 116 |
+| `domande/s1n.js` … `s6n.js` | practice | 120 |
+| `domande/sim1.js` … `sim6.js` | mock exam | 180 |
+| `domande/hard1.js` … `hard6.js` | mock exam, hard | 48 |
 
-Il numero nel nome del file è lo scenario. Ogni domanda è una chiamata a `Q(...)`:
+The number in the file name is the scenario. Each question is a call to `Q(...)`:
 
 ```js
 Q({ id: "x1-01", s: 1, d: 1, t: "1.1", sim: 1,
-  q: "Question text, in English.",
+  q: "Question text.",
   o: [
     "The correct option, always first.",
     "A wrong option.",
     "A wrong option.",
     "A wrong option.",
   ], a: [0],
-  e: "Spiegazione: perché la risposta giusta è giusta e le altre no, senza citare le lettere.",
+  e: "Explanation: why the right answer is right and the others are not, without citing option letters.",
 });
 ```
 
-- `id` univoco; `s` scenario (1–6); `d` dominio (1–5); `t` facoltativo, il task statement della guida (`"d.n"`).
-- `sim: 1` mette la domanda nella banca di simulazione, `hard: 1` la segna come difficile (si vede solo in
-  correzione), `off: 1` la segna come domanda d'esempio della guida. Senza `sim` è una domanda di allenamento.
-- La risposta corretta si scrive sempre per prima (`a: [0]`); per le domande "Which TWO" si danno 5 opzioni e
-  `a: [0, 1]`. La pagina mescola le opzioni a ogni presentazione.
-- Un file nuovo va aggiunto ai tag `<script>` in fondo a `index.html`.
+- `id` unique; `s` scenario (1–6); `d` domain (1–5); `t` optional, the guide's task statement (`"d.n"`).
+- `sim: 1` puts the question in the mock-exam bank; without it, it is a practice question. `hard: 1` marks it as hard
+  (shown only when reviewing results); `off: 1` marks a sample question from the guide.
+- The correct answer is always written first (`a: [0]`); "Which TWO" questions have 5 options and `a: [0, 1]`. The
+  page shuffles the options every time.
+- A new file must also be added to the `<script>` tags at the bottom of `index.html`.
 
-### Usarla come modello per un altro esame
+### Using it as a template for another exam
 
-Sostituisci i file in `domande/`, aggiorna in `index.html` le costanti `SCEN` (scenari) e `DOM` (domini e pesi), la
-sezione Teoria e i numeri della Panoramica. Il resto (allenamento, simulazione a tempo, statistiche, errori) non
-dipende dai contenuti.
+Replace the files in `domande/`, and in `index.html` update the `SCEN` (scenarios) and `DOM` (domains and weights)
+constants, the theory section and the figures on the overview page. Everything else (practice, timed mock exams,
+statistics, mistakes) does not depend on the content.
 
-## Fonte e avvertenze
+## Source and disclaimer
 
-Materiale non ufficiale, non affiliato ad Anthropic né approvato da Anthropic. Si basa solo sulla guida d'esame
-pubblica *Claude Certified Architect – Foundations Exam Guide* (versione 1.1): da lì vengono i testi dei 6 scenari e
-12 domande d'esempio, che restano di Anthropic. Tutte le altre domande sono scritte per l'allenamento e non sono
-domande d'esame. La guida può cambiare: in caso di differenze vale la versione ufficiale in vigore.
+Unofficial material, not affiliated with or endorsed by Anthropic. It is based only on the public *Claude Certified
+Architect – Foundations Exam Guide* (version 1.1): the 6 scenario descriptions and 12 sample questions come from it
+and remain Anthropic's. All other questions were written for practice and are not exam questions. The guide may
+change: where they differ, the official version in force prevails.
 
-## Licenza
+## License
 
-[MIT](LICENSE), per il codice e per le domande scritte qui; non per i testi ripresi dalla guida.
+[MIT](LICENSE), for the code and the questions written here; not for the text taken from the guide.
