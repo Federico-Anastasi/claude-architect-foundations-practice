@@ -29,10 +29,10 @@ as a cautious target.
 
 | Files | Bank | Questions |
 |---|---|---|
-| `domande/s1.js` … `s6.js` | practice, including the guide's 12 sample questions | 116 |
-| `domande/s1n.js` … `s6n.js` | practice | 120 |
-| `domande/sim1.js` … `sim6.js` | mock exam | 180 |
-| `domande/hard1.js` … `hard6.js` | mock exam, hard | 48 |
+| `questions/s1.js` … `s6.js` | practice, including the guide's 12 sample questions | 116 |
+| `questions/s1n.js` … `s6n.js` | practice | 120 |
+| `questions/sim1.js` … `sim6.js` | mock exam | 180 |
+| `questions/hard1.js` … `hard6.js` | mock exam, hard | 48 |
 
 The number in the file name is the scenario. Each question is a call to `Q(...)`:
 
@@ -58,7 +58,7 @@ Q({ id: "x1-01", s: 1, d: 1, t: "1.1", sim: 1,
 
 ### Using it as a template for another exam
 
-Replace the files in `domande/`, and in `index.html` update the `SCEN` (scenarios) and `DOM` (domains and weights)
+Replace the files in `questions/`, and in `index.html` update the `SCEN` (scenarios) and `DOM` (domains and weights)
 constants, the theory section and the figures on the overview page. Everything else (practice, timed mock exams,
 statistics, mistakes) does not depend on the content.
 
