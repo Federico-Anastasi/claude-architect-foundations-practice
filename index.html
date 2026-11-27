@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CCAR-F · Preparazione all'esame</title>
+<style>
+:root{
+  --bg:#f7f6f3;--fg:#1d1d1b;--muted:#6b6a66;--card:#fff;--line:#e3e1dc;
+  --accent:#c9603f;--accent-fg:#fff;--ok:#1f7a4d;--ok-bg:#e6f4ec;--ko:#b3261e;--ko-bg:#fbe9e7;
+  --pick:#fdf0ea;--code:#f0eee9;--flag:#b7791f;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#191918;--fg:#ecebe8;--muted:#a19f99;--card:#232321;--line:#363532;
+  --accent:#e07a57;--accent-fg:#1a1a1a;--ok:#5cc28d;--ok-bg:#1d3328;--ko:#f08b80;--ko-bg:#3a2220;
+  --pick:#3a2a22;--code:#2e2d2a;--flag:#e0a84a;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.hwrap{max-width:960px;margin:0 auto;padding:.6rem 1rem;display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.01em}
+.brand span{color:var(--accent)}
+nav{display:flex;gap:.25rem;flex-wrap:wrap}
+nav button{background:none;border:1px solid transparent;color:var(--fg);padding:.35rem .7rem;border-radius:6px;cursor:pointer;font:inherit}
+nav button:hover{border-color:var(--line)}
+nav button.active{background:var(--fg);color:var(--bg)}
+main{max-width:960px;margin:0 auto;padding:1.2rem 1rem 4rem}
+h1{font-size:1.7rem;margin:.2rem 0 1rem}
+h2{font-size:1.3rem;margin:2rem 0 .6rem}
+h3{font-size:1.08rem;margin:1.4rem 0 .4rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:1rem 1.2rem;margin:.8rem 0}
+.muted{color:var(--muted)}
+.warn{color:var(--flag);font-weight:600}
+code{background:var(--code);padding:.05rem .3rem;border-radius:4px;font:.88em ui-monospace,Consolas,monospace}
+pre{background:var(--code);padding:.8rem 1rem;border-radius:8px;overflow:auto;font:.85rem/1.45 ui-monospace,Consolas,monospace}
+table{border-collapse:collapse;width:100%;margin:.4rem 0}
+th,td{text-align:left;padding:.4rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:.9rem}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+button.primary,button.sec{font:inherit;padding:.5rem 1rem;border-radius:8px;cursor:pointer;border:1px solid var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-fg)}
+button.sec{background:none;color:var(--fg);border-color:var(--line)}
+button:disabled{opacity:.45;cursor:not-allowed}
+select{font:inherit;padding:.35rem;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+.controls{display:flex;gap:1rem;flex-wrap:wrap;align-items:end}
+.controls label{display:flex;flex-direction:column;font-size:.85rem;color:var(--muted);gap:.2rem}
+.qmeta{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem}
+.tag{font-size:.75rem;border:1px solid var(--line);border-radius:99px;padding:.1rem .55rem;color:var(--muted)}
+.tag.off{border-color:var(--accent);color:var(--accent)}
+.qtext{font-size:1.05rem;margin:.3rem 0 .6rem}
+.sel{font-weight:600;margin:.2rem 0 .5rem}
+.opts{display:flex;flex-direction:column;gap:.45rem}
+.opt{display:flex;gap:.6rem;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:.55rem .7rem;cursor:pointer}
+.opt input{margin-top:.3rem}
+.opt .letter{font-weight:700;min-width:1.1rem}
+.opt.picked{background:var(--pick);border-color:var(--accent)}
+.opt.right{background:var(--ok-bg);border-color:var(--ok)}
+.opt.wrong{background:var(--ko-bg);border-color:var(--ko)}
+.expl{margin-top:.8rem;padding:.7rem .9rem;border-radius:8px;border-left:4px solid}
+.expl.ok{border-color:var(--ok);background:var(--ok-bg)}
+.expl.ko{border-color:var(--ko);background:var(--ko-bg)}
+.expl p{margin:.35rem 0 0}
+.actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:.6rem;flex-wrap:wrap}
+.progress{color:var(--muted);font-size:.9rem}
+details.scen{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.6rem 1rem;margin:.6rem 0}
+details.scen summary{cursor:pointer;font-weight:600}
+.exambar{position:sticky;top:3.2rem;z-index:4;background:var(--bg);display:flex;gap:1rem;align-items:center;flex-wrap:wrap;padding:.5rem 0;border-bottom:1px solid var(--line)}
+#e-timer{font:700 1.3rem ui-monospace,Consolas,monospace}
+#e-timer.low{color:var(--ko)}
+.palette{display:flex;flex-wrap:wrap;gap:.25rem;margin:.7rem 0}
+.palette .sep{width:100%;font-size:.75rem;color:var(--muted);margin-top:.3rem}
+.palette button{width:2.1rem;height:2.1rem;font:600 .8rem system-ui;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;position:relative}
+.palette button.ans{background:var(--fg);color:var(--bg)}
+.palette button.cur{outline:2px solid var(--accent);outline-offset:1px}
+.palette button.flag::after{content:"";position:absolute;top:2px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--flag)}
+.confirm{border-color:var(--accent)}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.verdict{font-size:1.1rem;font-weight:600}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.8rem}
+.rule{border-left:3px solid var(--accent);padding:.1rem 0 .1rem .8rem;margin:.6rem 0}
+ul.tight li{margin:.2rem 0}
+.trap{background:var(--ko-bg);border-radius:8px;padding:.6rem .9rem;margin:.6rem 0}
+.trap strong{color:var(--ko)}
+kbd{border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 .3rem;font:.8rem ui-monospace,Consolas,monospace}
+.toc a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <div class="brand">CCAR-F <span>·</span> Preparazione</div>
+  <nav>
+    <button data-view="home">Panoramica</button>
+    <button data-view="theory">Teoria</button>
+    <button data-view="practice">Allenamento</button>
+    <button data-view="exam">Simulazione</button>
+    <button data-view="errors">Errori</button>
+  </nav>
+</div></header>
+
+<main>
+<!-- ============ PANORAMICA ============ -->
+<section id="v-home" class="view">
+  <h1>Claude Certified Architect – Foundations</h1>
+  <p class="muted">Materiale di studio non ufficiale, non affiliato ad Anthropic. Si basa solo sulla guida d'esame pubblica (Exam Guide, versione 1.1): gli scenari e 12 domande d'esempio vengono da lì, tutte le altre domande sono scritte per l'allenamento e non sono domande d'esame.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">L'esame</h3>
+      <table>
+        <tr><th>Domande</th><td>60, scelta multipla (una risposta) e risposta multipla (la domanda dice quante)</td></tr>
+        <tr><th>Tempo</th><td>120 minuti → 2 minuti a domanda</td></tr>
+        <tr><th>Struttura</th><td>4 scenari estratti a caso dai 6 della guida</td></tr>
+        <tr><th>Soglia</th><td>720 su scala 100–1.000 (punteggio scalato)</td></tr>
+        <tr><th>Esito</th><td>Pass/fail + percentuale per dominio</td></tr>
+      </table>
+      <p class="muted">Qui le domande sono in inglese, come gli esempi della guida; le spiegazioni sono in italiano.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Pesi dei domini</h3>
+      <table id="h-domains"></table>
+    </div>
+  </div>
+
+  <h2>Come usare questa pagina</h2>
+  <ol class="tight">
+    <li><strong>Teoria</strong>: leggi prima le <em>euristiche d'esame</em>, poi i 5 domini. Sono una sintesi non ufficiale della guida d'esame, con le trappole tipiche.</li>
+    <li><strong>Allenamento</strong>: domande una alla volta con correzione immediata, filtrabili per scenario, dominio, o solo quelle sbagliate.</li>
+    <li><strong>Simulazione</strong>: 4 scenari casuali × 15 domande (la guida non dice come sono ripartite le 60 domande; qui 15 per scenario), timer 120 minuti, correzione alla consegna. C'è anche una versione breve (2 scenari, 60 minuti). Usa una banca di domande separata, che non compare mai in allenamento, e propone prima le domande che non hai mai visto.</li>
+    <li><strong>Errori</strong>: le domande sbagliate l'ultima volta, da ripassare finché non spariscono.</li>
+  </ol>
+  <p class="muted">Tastiera: <kbd>A</kbd>–<kbd>E</kbd> sceglie una risposta, <kbd>Invio</kbd> verifica/avanza; in simulazione <kbd>←</kbd> <kbd>→</kbd> cambiano domanda. I progressi restano salvati in questo browser.</p>
+
+  <h2>I tuoi progressi</h2>
+  <div id="h-progress"></div>
+
+  <h2>I 6 scenari</h2>
+  <div id="h-scen"></div>
+</section>
+
+<!-- ============ TEORIA ============ -->
+<section id="v-theory" class="view" hidden>
+  <h1>Teoria</h1>
+  <p class="toc"><a href="#t-heur">Euristiche d'esame</a> · <a href="#t-d1">D1 Agentic</a> · <a href="#t-d2">D2 Tool &amp; MCP</a> · <a href="#t-d3">D3 Claude Code</a> · <a href="#t-d4">D4 Prompt &amp; output</a> · <a href="#t-d5">D5 Contesto &amp; affidabilità</a></p>
+
+  <h2 id="t-heur">Euristiche d'esame</h2>
+  <p>Le domande sono di giudizio: tutte le opzioni sono plausibili, una affronta la <em>causa radice</em> con l'intervento proporzionato. Questi schemi ricorrono in tutta la guida.</p>
+  <div class="rule"><strong>1. Serve una garanzia? Codice, non prompt.</strong> Identità prima dei rimborsi, soglie di importo, ordine obbligatorio dei tool: hook o gate programmatici. Prompt e few-shot hanno un tasso d'errore non nullo.</div>
+  <div class="rule"><strong>2. "Most effective first step" = la causa, con il minimo sforzo.</strong> Descrizioni dei tool, criteri espliciti, few-shot. Classificatori dedicati, routing layer, modelli ML addestrati sono sovra-ingegneria finché il prompt non è stato sistemato.</div>
+  <div class="rule"><strong>3. Modello più grande o context window più grande quasi mai è la risposta.</strong> Non risolve diluizione dell'attenzione, design dei tool, summarization che perde dati.</div>
+  <div class="rule"><strong>4. Sentiment e confidenza auto-riportata non misurano la complessità.</strong> Per l'escalation sono proxy inaffidabili. La confidenza serve solo se calibrata su un set etichettato (review umana delle estrazioni).</div>
+  <div class="rule"><strong>5. Consenso tra più run sopprime i bug reali</strong> che emergono a intermittenza. La soluzione è dividere il lavoro (per file + integrazione), non votare.</div>
+  <div class="rule"><strong>6. Errori: mai generici, mai silenziosi, mai fatali per tutto il workflow.</strong> Sì a contesto strutturato: tipo di errore, cosa è stato tentato, risultati parziali, alternative, <code>isRetryable</code>.</div>
+  <div class="rule"><strong>7. I subagent non ereditano nulla.</strong> Ciò che serve va nel loro prompt, con metadati strutturati (fonte, data, pagina) separati dal contenuto.</div>
+  <div class="rule"><strong>8. Minimo privilegio sui tool.</strong> 4–5 tool per ruolo; un tool mirato per il bisogno frequente (es. <code>verify_fact</code>); il resto passa dal coordinatore.</div>
+  <div class="rule"><strong>9. Progetto vs utente.</strong> Ciò che è condiviso e versionato sta nel repository (<code>.claude/…</code>, <code>.mcp.json</code>, CLAUDE.md); ciò che è personale sta in home (<code>~/.claude/…</code>, <code>~/.claude.json</code>).</div>
+  <div class="rule"><strong>10. Batch API solo per ciò che può aspettare.</strong> Report notturni, audit settimanali: sì. Controlli pre-merge bloccanti: no.</div>
+  <div class="rule"><strong>11. Criteri espliciti e categorici &gt; "be conservative".</strong> "Riporta solo bug e sicurezza, salta lo stile" funziona; "solo finding ad alta confidenza" no.</div>
+  <div class="rule"><strong>12. Non scaricare il problema sull'utente.</strong> "Chiedi ai dev di spezzare la PR", "fai ripetere il cliente" sono quasi sempre distrattori.</div>
+  <div class="trap"><strong>Trappole ricorrenti:</strong> flag o file che non esistono (<code>CLAUDE_HEADLESS</code>, <code>--batch</code>, <code>.claude/config.json</code>); cap fisso di iterazioni come criterio di stop; scegliere un valore a caso tra fonti in conflitto; dichiarare successo con un risultato vuoto dopo un timeout.</div>
+
+  <!-- D1 -->
+  <h2 id="t-d1">Dominio 1 · Agentic Architecture &amp; Orchestration <span class="muted">(27%)</span></h2>
+  <h3>1.1 Agentic loop</h3>
+  <p>Ciclo: richiesta a Claude → leggi <code>stop_reason</code> → se <code>"tool_use"</code> esegui i tool richiesti, aggiungi i <code>tool_result</code> alla history e ripeti → se <code>"end_turn"</code> hai finito.</p>
+<pre>messages = [{"role": "user", "content": request}]
+while True:
+    resp = client.messages.create(model=..., tools=tools, messages=messages)
+    messages.append({"role": "assistant", "content": resp.content})
+    if resp.stop_reason != "tool_use":        # "end_turn": il modello ha finito
+        break
+    results = [{"type": "tool_result", "tool_use_id": b.id, "content": run(b)}
+               for b in resp.content if b.type == "tool_use"]
+    messages.append({"role": "user", "content": results})</pre>
+  <ul class="tight">
+    <li>L'API è stateless: la history completa (con tool_use e tool_result) va rimandata a ogni richiesta.</li>
+    <li>Decisioni <em>model-driven</em> (Claude sceglie il prossimo tool in base al contesto) vs alberi decisionali o sequenze predefinite.</li>
+    <li><strong>Anti-pattern:</strong> terminare cercando frasi nel testo ("done", "resolved"); un cap di iterazioni come meccanismo <em>principale</em> di stop; usare la presenza di testo dell'assistente come segnale di fine (una risposta può contenere testo e tool_use insieme).</li>
+  </ul>
+  <h3>1.2 Coordinatore e subagent</h3>
+  <ul class="tight">
+    <li>Hub-and-spoke: tutta la comunicazione passa dal coordinatore (osservabilità, gestione errori uniforme, flusso controllato).</li>
+    <li>Il coordinatore decompone, delega, aggrega e <strong>sceglie dinamicamente</strong> quali subagent servono in base alla query, invece di eseguire sempre l'intera pipeline.</li>
+    <li>Rischio principale: decomposizione troppo stretta → copertura incompleta (es. "industrie creative" ridotte alle sole arti visive). Se i subagent eseguono bene ma il risultato è parziale, guarda la decomposizione.</li>
+    <li>Partizionare lo scope (sottotemi o tipi di fonte distinti) per evitare duplicazioni.</li>
+    <li>Raffinamento iterativo: il coordinatore valuta la sintesi, trova lacune, ri-delega query mirate, ri-sintetizza.</li>
+    <li>Prompt del coordinatore: obiettivi e criteri di qualità, non procedure passo-passo.</li>
+  </ul>
+  <h3>1.3 Invocazione dei subagent</h3>
+  <ul class="tight">
+    <li>Il tool <code>Task</code> genera i subagent: il coordinatore deve averlo in <code>allowedTools</code>.</li>
+    <li>Contesto isolato: i subagent non ereditano la conversazione del coordinatore né condividono memoria tra invocazioni. I risultati precedenti (es. ricerche web, analisi) vanno inclusi nel loro prompt.</li>
+    <li><code>AgentDefinition</code>: descrizione, system prompt, restrizioni dei tool per ogni tipo di subagent.</li>
+    <li>Parallelismo: più chiamate <code>Task</code> nella <strong>stessa</strong> risposta, non in turni separati.</li>
+    <li>Formati strutturati che separano contenuto e metadati (URL, documento, pagina) per preservare l'attribuzione.</li>
+  </ul>
+  <h3>1.4 Enforcement e handoff</h3>
+  <ul class="tight">
+    <li>Enforcement programmatico (hook, gate di prerequisito) vs guida via prompt. Se serve compliance deterministica, il prompt da solo non basta.</li>
+    <li>Esempio canonico: bloccare <code>process_refund</code> (e <code>lookup_order</code>) finché <code>get_customer</code> non ha restituito un ID verificato.</li>
+    <li>Richieste multi-problema: scomporre, indagare ogni punto (anche in parallelo) con contesto condiviso, sintetizzare una risposta unica.</li>
+    <li>Handoff a un umano che non vede il transcript: riepilogo strutturato (ID cliente, causa, importo, azione raccomandata).</li>
+  </ul>
+  <h3>1.5 Hook dell'Agent SDK</h3>
+  <ul class="tight">
+    <li><code>PostToolUse</code>: trasforma i risultati prima che il modello li veda (normalizzare timestamp Unix / ISO 8601 / codici di stato numerici; filtrare campi).</li>
+    <li>Intercettazione delle chiamate in uscita: blocca azioni che violano le policy (rimborso &gt; $500) e reindirizza a un workflow alternativo (escalation).</li>
+    <li>Hook = garanzia deterministica; prompt = compliance probabilistica.</li>
+  </ul>
+  <h3>1.6 Decomposizione dei task</h3>
+  <ul class="tight">
+    <li><strong>Prompt chaining</strong> (pipeline fissa) per lavori prevedibili e multi-aspetto: es. review di ogni file, poi una passata di integrazione cross-file.</li>
+    <li><strong>Decomposizione dinamica</strong> per task aperti: "aggiungi test a una codebase legacy" → mappa la struttura, individua le aree ad alto impatto, piano prioritizzato che si adatta alle dipendenze scoperte.</li>
+  </ul>
+  <h3>1.7 Sessioni</h3>
+  <ul class="tight">
+    <li><code>--resume &lt;nome&gt;</code>: riprende una sessione nominata. Usalo quando il contesto precedente è in gran parte ancora valido, e <strong>dì all'agente quali file sono cambiati</strong> per una nuova analisi mirata.</li>
+    <li><code>fork_session</code>: rami indipendenti da una base comune per confrontare approcci divergenti.</li>
+    <li>Risultati dei tool ormai vecchi → sessione nuova con un riepilogo strutturato iniettato, più affidabile del resume.</li>
+  </ul>
+
+  <!-- D2 -->
+  <h2 id="t-d2">Dominio 2 · Tool Design &amp; MCP Integration <span class="muted">(18%)</span></h2>
+  <h3>2.1 Descrizioni dei tool</h3>
+  <ul class="tight">
+    <li>La descrizione è il <strong>meccanismo principale</strong> con cui il modello sceglie il tool. Descrizioni minime → scelte inaffidabili tra tool simili.</li>
+    <li>Includere: formati di input, query d'esempio, edge case, confini ("usa questo invece di X quando…").</li>
+    <li>Sovrapposizioni → rinominare e differenziare (<code>analyze_content</code> → <code>extract_web_results</code>). Tool generici → dividerli in tool con contratti chiari (<code>extract_data_points</code>, <code>summarize_content</code>, <code>verify_claim_against_source</code>).</li>
+    <li>Il system prompt può creare associazioni involontarie con certe parole chiave e scavalcare buone descrizioni: va riletto.</li>
+  </ul>
+  <h3>2.2 Errori strutturati nei tool MCP</h3>
+  <table>
+    <tr><th>Categoria</th><th>Esempio</th><th>Cosa fa l'agente</th></tr>
+    <tr><td>transient</td><td>timeout, servizio non disponibile</td><td>riprova (retryable)</td></tr>
+    <tr><td>validation</td><td>input non valido</td><td>corregge l'input</td></tr>
+    <tr><td>business</td><td>violazione di policy</td><td>non riprova; spiega al cliente</td></tr>
+    <tr><td>permission</td><td>accesso negato</td><td>non riprova; escala o cambia strada</td></tr>
+  </table>
+  <ul class="tight">
+    <li>Flag <code>isError</code> + metadati: <code>errorCategory</code>, <code>isRetryable</code>, descrizione leggibile; per le regole di business una spiegazione comunicabile al cliente.</li>
+    <li>"Operation failed" uniforme impedisce decisioni di recovery.</li>
+    <li>Recovery locale nei subagent per gli errori transitori; al coordinatore solo ciò che non si risolve, con tentativi e risultati parziali.</li>
+    <li><strong>Access failure ≠ risultato vuoto valido</strong> (query riuscita, zero risultati).</li>
+  </ul>
+  <h3>2.3 Distribuzione dei tool e tool_choice</h3>
+  <ul class="tight">
+    <li>Troppi tool (18 invece di 4–5) peggiorano la selezione. Tool fuori dalla specializzazione vengono usati male (l'agente di sintesi che fa ricerche web).</li>
+    <li>Tool cross-role mirati per bisogni frequenti (<code>verify_fact</code>), casi complessi via coordinatore. Tool vincolati invece di generici (<code>load_document</code> che valida gli URL invece di <code>fetch_url</code>).</li>
+  </ul>
+  <table>
+    <tr><th><code>tool_choice</code></th><th>Comportamento</th><th>Quando</th></tr>
+    <tr><td><code>"auto"</code></td><td>può rispondere con testo invece di chiamare un tool</td><td>default conversazionale</td></tr>
+    <tr><td><code>"any"</code></td><td>deve chiamare un tool, sceglie lui quale</td><td>più schemi di estrazione, tipo di documento ignoto</td></tr>
+    <tr><td><code>{"type":"tool","name":"…"}</code></td><td>deve chiamare quel tool</td><td>forzare un primo passo (<code>extract_metadata</code>), poi i passi successivi nei turni seguenti</td></tr>
+  </table>
+  <h3>2.4 MCP in Claude Code e negli agenti</h3>
+  <ul class="tight">
+    <li><code>.mcp.json</code> di progetto: server condivisi dal team, versionati; credenziali con <code>${GITHUB_TOKEN}</code> (espansione di variabili d'ambiente, nessun segreto nel commit).</li>
+    <li><code>~/.claude.json</code>: server personali o sperimentali.</li>
+    <li>I tool di tutti i server configurati vengono scoperti alla connessione e sono disponibili <strong>contemporaneamente</strong>.</li>
+    <li><strong>Resources</strong> = cataloghi di contenuto (sommari di issue, gerarchie di documentazione, schemi DB) per ridurre le chiamate esplorative. <strong>Tools</strong> = azioni.</li>
+    <li>Integrazioni standard (Jira): server della community. Server custom solo per workflow specifici del team.</li>
+    <li>Se l'agente preferisce Grep a un tool MCP più capace: migliora la descrizione del tool MCP.</li>
+  </ul>
+  <h3>2.5 Tool built-in</h3>
+  <table>
+    <tr><th>Tool</th><th>Per cosa</th></tr>
+    <tr><td>Grep</td><td>contenuto dei file: chiamanti di una funzione, messaggi d'errore, import</td></tr>
+    <tr><td>Glob</td><td>percorsi e nomi: <code>**/*.test.tsx</code></td></tr>
+    <tr><td>Read / Write</td><td>file interi</td></tr>
+    <tr><td>Edit</td><td>modifica mirata su testo <strong>univoco</strong>; se il testo non è univoco → Read + Write</td></tr>
+    <tr><td>Bash</td><td>comandi di shell</td></tr>
+  </table>
+  <p>Esplorazione incrementale: Grep per i punti d'ingresso, Read per seguire import e flussi, non leggere tutto subito. Moduli wrapper: individua tutti i nomi esportati (alias compresi), poi cercali uno per uno.</p>
+
+  <!-- D3 -->
+  <h2 id="t-d3">Dominio 3 · Claude Code Configuration &amp; Workflows <span class="muted">(20%)</span></h2>
+  <h3>3.1 Gerarchia CLAUDE.md</h3>
+  <table>
+    <tr><th>Livello</th><th>Percorso</th><th>Chi lo vede</th></tr>
+    <tr><td>Utente</td><td><code>~/.claude/CLAUDE.md</code></td><td>solo quell'utente, non versionato</td></tr>
+    <tr><td>Progetto</td><td><code>./CLAUDE.md</code> o <code>.claude/CLAUDE.md</code></td><td>tutto il team, via version control</td></tr>
+    <tr><td>Directory</td><td><code>sub/CLAUDE.md</code></td><td>lavorando in quella sottocartella</td></tr>
+  </table>
+  <ul class="tight">
+    <li>Caso tipico: "il nuovo collega non riceve le istruzioni" → sono a livello utente di qualcun altro; spostarle a livello progetto.</li>
+    <li><code>@import</code> per includere file di standard selezionati in ogni CLAUDE.md di package.</li>
+    <li><code>.claude/rules/</code>: file tematici (<code>testing.md</code>, <code>api-conventions.md</code>, <code>deployment.md</code>) al posto di un CLAUDE.md monolitico.</li>
+    <li><code>/memory</code>: mostra quali file di memoria sono caricati, per diagnosticare comportamenti incoerenti tra sessioni.</li>
+  </ul>
+  <h3>3.2 Comandi e skill</h3>
+  <ul class="tight">
+    <li><code>.claude/commands/</code>: comandi di team (versionati). <code>~/.claude/commands/</code>: personali.</li>
+    <li>Skill in <code>.claude/skills/&lt;nome&gt;/SKILL.md</code> con frontmatter:
+      <ul>
+        <li><code>context: fork</code> → esegue in un subagent isolato; output verboso o esplorativo non inquina la conversazione principale.</li>
+        <li><code>allowed-tools</code> → limita i tool durante la skill (es. solo scrittura file, nessuna azione distruttiva).</li>
+        <li><code>argument-hint</code> → suggerisce i parametri richiesti se la skill è invocata senza argomenti.</li>
+      </ul></li>
+    <li>Varianti personali di una skill di team: in <code>~/.claude/skills/</code> <strong>con un nome diverso</strong>.</li>
+    <li>Skill = workflow su richiesta. CLAUDE.md = standard universali sempre caricati.</li>
+  </ul>
+  <h3>3.3 Regole per percorso</h3>
+<pre>---
+paths: ["**/*.test.tsx"]
+---
+Test: React Testing Library, niente snapshot, un describe per componente.</pre>
+  <ul class="tight">
+    <li>Si caricano solo quando si lavora su file che corrispondono al glob: meno contesto irrilevante.</li>
+    <li>Meglio dei CLAUDE.md di sottocartella per convenzioni sparse in tutta la codebase (i test accanto ai componenti).</li>
+  </ul>
+  <h3>3.4 Plan mode vs direct execution</h3>
+  <table>
+    <tr><th>Plan mode</th><th>Direct execution</th></tr>
+    <tr><td>Cambi su larga scala, più approcci validi, decisioni architetturali, modifiche multi-file (microservizi, migrazione di 45+ file)</td><td>Cambi semplici e delimitati: bug su un file con stack trace chiaro, una validazione da aggiungere</td></tr>
+  </table>
+  <ul class="tight">
+    <li>Combinazione tipica: plan mode per indagare e scegliere, poi direct execution per implementare il piano.</li>
+    <li><strong>Explore subagent</strong>: isola l'output verboso della fase di scoperta e restituisce un riassunto, preservando il contesto principale.</li>
+  </ul>
+  <h3>3.5 Raffinamento iterativo</h3>
+  <ul class="tight">
+    <li>Prosa interpretata in modo incoerente → 2–3 esempi concreti input/output.</li>
+    <li>Test-driven: scrivi prima i test (comportamento, edge case, performance), poi itera condividendo i fallimenti.</li>
+    <li><em>Interview pattern</em>: Claude fa domande per far emergere aspetti non previsti (invalidazione della cache, failure mode) prima di implementare in un dominio poco noto.</li>
+    <li>Problemi che interagiscono → tutti in un unico messaggio dettagliato. Problemi indipendenti → uno alla volta.</li>
+  </ul>
+  <h3>3.6 Claude Code in CI/CD</h3>
+  <ul class="tight">
+    <li><code>-p</code> / <code>--print</code>: modalità non interattiva (altrimenti il job resta in attesa di input).</li>
+    <li><code>--output-format json</code> + <code>--json-schema</code>: finding strutturati da pubblicare come commenti inline.</li>
+    <li>CLAUDE.md di progetto fornisce il contesto anche in CI (standard di test, fixture, criteri di review).</li>
+    <li>Review con un'istanza indipendente, non la stessa sessione che ha generato il codice.</li>
+    <li>Nuovi commit: includere i finding precedenti e chiedere solo quelli nuovi o non risolti. Generazione di test: includere i test esistenti per evitare duplicati.</li>
+  </ul>
+
+  <!-- D4 -->
+  <h2 id="t-d4">Dominio 4 · Prompt Engineering &amp; Structured Output <span class="muted">(20%)</span></h2>
+  <h3>4.1 Criteri espliciti</h3>
+  <ul class="tight">
+    <li>"Segnala un commento solo quando il comportamento dichiarato contraddice il codice" &gt; "controlla che i commenti siano accurati".</li>
+    <li>"Be conservative" o "only high-confidence findings" non migliorano la precisione.</li>
+    <li>I falsi positivi di una categoria minano la fiducia anche nelle categorie accurate → disabilitarla temporaneamente mentre si migliora il prompt.</li>
+    <li>Severità coerente: criteri espliciti con esempi di codice concreti per ogni livello.</li>
+  </ul>
+  <h3>4.2 Few-shot</h3>
+  <ul class="tight">
+    <li>La tecnica più efficace per output coerente quando le istruzioni dettagliate non bastano.</li>
+    <li>2–4 esempi mirati sui casi <strong>ambigui</strong>, mostrando perché un'azione è preferita alle alternative plausibili.</li>
+    <li>Mostrano il formato (posizione, problema, severità, fix), distinguono pattern accettabili da problemi veri, generalizzano a casi nuovi.</li>
+    <li>In estrazione: riducono allucinazioni e campi vuoti su documenti con strutture diverse (citazioni inline vs bibliografia, prosa vs tabelle).</li>
+  </ul>
+  <h3>4.3 Output strutturato con tool use</h3>
+  <ul class="tight">
+    <li>Tool con JSON schema come input, dati letti dal blocco <code>tool_use</code>: il modo più affidabile per output conforme, elimina gli errori di sintassi.</li>
+    <li><strong>Non elimina gli errori semantici</strong>: righe che non sommano al totale, valori nel campo sbagliato.</li>
+    <li>Campi <strong>nullable/opzionali</strong> quando l'informazione può mancare: un campo obbligatorio spinge il modello a inventare.</li>
+    <li>Enum con <code>"other"</code> + stringa di dettaglio per categorie estendibili; <code>"unclear"</code> per i casi ambigui.</li>
+    <li>Regole di normalizzazione del formato nel prompt, insieme allo schema rigido.</li>
+  </ul>
+  <h3>4.4 Validazione e retry</h3>
+  <ul class="tight">
+    <li>Retry con feedback: documento originale + estrazione fallita + errore di validazione specifico.</li>
+    <li>Il retry funziona per errori di formato o struttura; <strong>è inutile se l'informazione non è nel documento</strong> (es. sta in un allegato non fornito).</li>
+    <li><code>detected_pattern</code> nei finding per analizzare quali costrutti generano falsi positivi quando gli sviluppatori li scartano.</li>
+    <li>Auto-verifica: <code>calculated_total</code> accanto a <code>stated_total</code>; booleano <code>conflict_detected</code> per fonti incoerenti.</li>
+  </ul>
+  <h3>4.5 Message Batches API</h3>
+  <ul class="tight">
+    <li>50% di risparmio, elaborazione fino a 24 ore, nessuno SLA di latenza.</li>
+    <li>Sì: report notturni, audit settimanali, generazione notturna di test. No: controlli pre-merge bloccanti.</li>
+    <li>Nessuna chiamata di tool multi-turn dentro una singola richiesta.</li>
+    <li><code>custom_id</code> per correlare richieste e risposte; in caso di errore si reinviano solo i falliti, modificati (es. spezzando documenti troppo lunghi).</li>
+    <li>Frequenza di invio dallo SLA: con SLA 30h e fino a 24h di elaborazione, l'attesa prima dell'invio deve restare ≤ 6h → invio ogni 4h.</li>
+    <li>Rifinire il prompt su un campione prima di elaborare grandi volumi.</li>
+  </ul>
+  <h3>4.6 Review multi-istanza e multi-passata</h3>
+  <ul class="tight">
+    <li>Self-review limitata: il modello conserva il ragionamento con cui ha generato e tende a non contestarlo. Un'istanza indipendente batte istruzioni di self-review ed extended thinking.</li>
+    <li>PR grandi: passate per singolo file (problemi locali) + passata di integrazione (flussi di dati tra file). Evita diluizione dell'attenzione e finding contraddittori.</li>
+    <li>Passate di verifica con confidenza per finding, per instradare la review.</li>
+  </ul>
+
+  <!-- D5 -->
+  <h2 id="t-d5">Dominio 5 · Context Management &amp; Reliability <span class="muted">(15%)</span></h2>
+  <h3>5.1 Contesto nelle interazioni lunghe</h3>
+  <ul class="tight">
+    <li>La summarization progressiva trasforma numeri, percentuali, date e aspettative del cliente in frasi vaghe → blocco persistente di "case facts" (importi, date, ordini, stati) incluso in ogni prompt, fuori dalla history riassunta.</li>
+    <li><em>Lost in the middle</em>: inizio e fine di un input lungo sono elaborati bene, il centro meno → riepilogo dei punti chiave in testa e intestazioni di sezione esplicite.</li>
+    <li>Output dei tool verbosi (40+ campi quando ne servono 5) → filtrarli prima che entrino nel contesto.</li>
+    <li>Se un agente a valle ha poco budget, l'agente a monte restituisce dati strutturati (fatti, citazioni, punteggi) invece di ragionamenti estesi.</li>
+  </ul>
+  <h3>5.2 Escalation e ambiguità</h3>
+  <table>
+    <tr><th>Situazione</th><th>Comportamento</th></tr>
+    <tr><td>Il cliente chiede esplicitamente un umano</td><td>Escalation immediata, senza prima indagare</td></tr>
+    <tr><td>Cliente frustrato, problema risolvibile</td><td>Riconosci la frustrazione, offri la soluzione; escala se ribadisce la richiesta</td></tr>
+    <tr><td>Policy ambigua o silente (price match con un concorrente)</td><td>Escalation</td></tr>
+    <tr><td>Nessun progresso possibile</td><td>Escalation</td></tr>
+    <tr><td>Più clienti corrispondenti</td><td>Chiedi un identificatore aggiuntivo, non scegliere con euristiche</td></tr>
+  </table>
+  <p>Calibrazione: criteri di escalation espliciti con esempi few-shot nel system prompt. Non sentiment, non confidenza auto-riportata.</p>
+  <h3>5.3 Propagazione degli errori tra agenti</h3>
+  <ul class="tight">
+    <li>Contesto strutturato: tipo di errore, query tentata, risultati parziali, approcci alternativi.</li>
+    <li>Anti-pattern: stato generico ("search unavailable"), errore soppresso (vuoto marcato come successo), workflow interrotto per un singolo errore.</li>
+    <li>Sintesi con annotazioni di copertura: quali finding sono solidi, quali aree hanno lacune per fonti non disponibili.</li>
+  </ul>
+  <h3>5.4 Codebase grandi</h3>
+  <ul class="tight">
+    <li>Degrado nelle sessioni lunghe: risposte su "pattern tipici" invece delle classi trovate prima.</li>
+    <li>Rimedi: file scratchpad con i risultati chiave; subagent per domande specifiche ("trova tutti i file di test"); riassumere una fase prima di avviare la successiva; <code>/compact</code> quando il contesto è pieno di output di scoperta.</li>
+    <li>Recupero dopo un crash: ogni agente esporta lo stato in una posizione nota, il coordinatore carica un manifest alla ripresa e lo inietta nei prompt.</li>
+  </ul>
+  <h3>5.5 Review umana e calibrazione</h3>
+  <ul class="tight">
+    <li>Un 97% aggregato può nascondere tipi di documento o campi scadenti → misurare per tipo e per campo prima di ridurre la review.</li>
+    <li>Campionamento casuale stratificato anche sulle estrazioni ad alta confidenza, per misurare l'errore e scoprire pattern nuovi.</li>
+    <li>Confidenza per campo, soglie calibrate su un set di validazione etichettato.</li>
+    <li>Capacità di review limitata → priorità a bassa confidenza e documenti ambigui o contraddittori.</li>
+  </ul>
+  <h3>5.6 Provenienza e incertezza</h3>
+  <ul class="tight">
+    <li>Mappature claim → fonte (URL, documento, estratto) prodotte dai subagent e preservate nella sintesi.</li>
+    <li>Statistiche in conflitto da fonti credibili: riportarle entrambe con attribuzione, non sceglierne una.</li>
+    <li>Date di pubblicazione o raccolta nei dati strutturati, così differenze temporali non sembrano contraddizioni.</li>
+    <li>Report con sezioni separate per risultati consolidati e contestati; formato adatto al contenuto (dati finanziari in tabella, notizie in prosa, risultati tecnici in elenchi).</li>
+  </ul>
+  <h3>Fuori programma</h3>
+  <p class="muted">Fine-tuning, autenticazione e billing dell'API, hosting dei server MCP, architettura interna di Claude, RLHF/Constitutional AI, embedding e vector DB, computer use, vision, streaming/SSE, rate limit e prezzi, OAuth, configurazioni cloud, benchmark, dettagli del prompt caching, tokenizzazione.</p>
+</section>
+
+<!-- ============ ALLENAMENTO ============ -->
+<section id="v-practice" class="view" hidden>
+  <h1>Allenamento</h1>
+  <div class="card controls">
+    <label>Scenario <select id="p-s"></select></label>
+    <label>Dominio <select id="p-d"></select></label>
+    <label>Domande <select id="p-f">
+      <option value="all">Tutte</option>
+      <option value="new">Mai risposte</option>
+      <option value="wrong">Sbagliate l'ultima volta</option>
+    </select></label>
+    <button id="p-start" class="primary">Inizia</button>
+  </div>
+  <div id="p-area"><p class="muted">Scegli i filtri e premi Inizia. Le domande della simulazione non compaiono qui.</p></div>
+</section>
+
+<!-- ============ SIMULAZIONE ============ -->
+<section id="v-exam" class="view" hidden>
+  <div id="e-area"></div>
+</section>
+
+<!-- ============ ERRORI ============ -->
+<section id="v-errors" class="view" hidden>
+  <h1>Errori da ripassare</h1>
+  <div id="err-area"></div>
+</section>
+</main>
+
+<script>window.QB = []; function Q(q){ window.QB.push(q); }</script>
+<script src="domande/s1.js"></script>
+<script src="domande/s2.js"></script>
+<script src="domande/s3.js"></script>
+<script src="domande/s4.js"></script>
+<script src="domande/s5.js"></script>
+<script src="domande/s6.js"></script>
+<script src="domande/s1n.js"></script>
+<script src="domande/s2n.js"></script>
+<script src="domande/s3n.js"></script>
+<script src="domande/s4n.js"></script>
+<script src="domande/s5n.js"></script>
+<script src="domande/s6n.js"></script>
+<script src="domande/sim1.js"></script>
+<script src="domande/sim2.js"></script>
+<script src="domande/sim3.js"></script>
+<script src="domande/sim4.js"></script>
+<script src="domande/sim5.js"></script>
+<script src="domande/sim6.js"></script>
+<script src="domande/hard1.js"></script>
+<script src="domande/hard2.js"></script>
+<script src="domande/hard3.js"></script>
+<script src="domande/hard4.js"></script>
+<script src="domande/hard5.js"></script>
+<script src="domande/hard6.js"></script>
+<script>
+const QB = window.QB;
+const TRAIN = QB.filter((q) => !q.sim);
+const SIM = QB.filter((q) => q.sim);
+const DOM = {
+  1: ["Agentic Architecture & Orchestration", 27],
+  2: ["Tool Design & MCP Integration", 18],
+  3: ["Claude Code Configuration & Workflows", 20],
+  4: ["Prompt Engineering & Structured Output", 20],
+  5: ["Context Management & Reliability", 15],
+};
+const SCEN = {
+  1: { name: "Customer Support Resolution Agent", d: [1, 2, 5],
+       text: "You are building a customer support resolution agent using the Claude Agent SDK. The agent handles high-ambiguity requests like returns, billing disputes, and account issues. It has access to your backend systems through custom Model Context Protocol (MCP) tools (`get_customer`, `lookup_order`, `process_refund`, `escalate_to_human`). Your target is 80%+ first-contact resolution while knowing when to escalate." },
+  2: { name: "Code Generation with Claude Code", d: [3, 5],
+       text: "You are using Claude Code to accelerate software development. Your team uses it for code generation, refactoring, debugging, and documentation. You need to integrate it into your development workflow with custom slash commands, CLAUDE.md configurations, and understand when to use plan mode vs direct execution." },
+  3: { name: "Multi-Agent Research System", d: [1, 2, 5],
+       text: "You are building a multi-agent research system using the Claude Agent SDK. A coordinator agent delegates to specialized subagents: one searches the web, one analyzes documents, one synthesizes findings, and one generates reports. The system researches topics and produces comprehensive, cited reports." },
+  4: { name: "Developer Productivity with Claude", d: [2, 3, 1],
+       text: "You are building developer productivity tools using the Claude Agent SDK. The agent helps engineers explore unfamiliar codebases, understand legacy systems, generate boilerplate code, and automate repetitive tasks. It uses the built-in tools (Read, Write, Bash, Grep, Glob) and integrates with Model Context Protocol (MCP) servers." },
+  5: { name: "Claude Code for Continuous Integration", d: [3, 4],
+       text: "You are integrating Claude Code into your Continuous Integration/Continuous Deployment (CI/CD) pipeline. The system runs automated code reviews, generates test cases, and provides feedback on pull requests. You need to design prompts that provide actionable feedback and minimize false positives." },
+  6: { name: "Structured Data Extraction", d: [4, 5],
+       text: "You are building a structured data extraction system using Claude. The system extracts information from unstructured documents, validates the output using JSON schemas, and maintains high accuracy. It must handle edge cases gracefully and integrate with downstream systems." },
+};
+const LETTERS = "ABCDE";
+const COUNT_WORD = { 2: "TWO", 3: "THREE" };
+const STATS_KEY = "ccarf-stats-v1";
+const HIST_KEY = "ccarf-history-v1";
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const fmt = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+const pct = (a, b) => (b ? Math.round((100 * a) / b) : 0);
+const shuffle = (a) => {
+  const b = a.slice();
+  for (let i = b.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+};
+const mmss = (ms) => {
+  const t = Math.ceil(ms / 1000);
+  const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+  return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s).padStart(2, "0");
+};
+const bar = (p) => `<div class="bar"><i style="width:${p}%"></i></div>`;
+
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const stats = load(STATS_KEY, {});
+const history = load(HIST_KEY, []);
+const saveStats = () => localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+const record = (q, ok) => {
+  const s = stats[q.id] || { seen: 0, ok: 0 };
+  s.seen++; if (ok) s.ok++; s.last = ok;
+  stats[q.id] = s;
+  saveStats();
+};
+
+const prepare = (q) => ({ q, order: shuffle(q.o.map((_, i) => i)), picked: new Set(), flag: false });
+const isCorrect = (it) => it.picked.size === it.q.a.length && [...it.picked].every((i) => it.q.a.includes(i));
+
+function qHTML(it, locked) {
+  const q = it.q, multi = q.a.length > 1;
+  const opts = it.order.map((oi, k) => {
+    const picked = it.picked.has(oi), right = q.a.includes(oi);
+    const cls = locked ? (right ? " right" : picked ? " wrong" : "") : picked ? " picked" : "";
+    return `<label class="opt${cls}"><input type="${multi ? "checkbox" : "radio"}" name="o-${q.id}" value="${oi}"${picked ? " checked" : ""}${locked ? " disabled" : ""}><span class="letter">${LETTERS[k]}</span><span>${fmt(q.o[oi])}</span></label>`;
+  }).join("");
+  const ok = isCorrect(it);
+  const expl = locked
+    ? `<div class="expl ${ok ? "ok" : "ko"}"><strong>${ok ? "Corretto" : it.picked.size ? "Sbagliato" : "Senza risposta"}</strong> · risposta corretta: ${q.a.map((i) => LETTERS[it.order.indexOf(i)]).sort().join(", ")}<p>${fmt(q.e)}</p></div>`
+    : "";
+  return `<div class="qmeta"><span class="tag">S${q.s} · ${SCEN[q.s].name}</span><span class="tag">D${q.d} · ${DOM[q.d][0]}</span>${q.off ? '<span class="tag off">Domanda d&#39;esempio della guida</span>' : ""}${q.hard && locked ? '<span class="tag off">Difficile</span>' : ""}</div>
+    <p class="qtext">${fmt(q.q)}</p>${multi ? `<p class="sel">Select ${COUNT_WORD[q.a.length]}.</p>` : ""}
+    <div class="opts">${opts}</div>${expl}`;
+}
+
+function wire(box, it, onChange) {
+  box.querySelectorAll("input").forEach((inp) => inp.addEventListener("change", () => {
+    const v = Number(inp.value);
+    if (it.q.a.length > 1) {
+      if (inp.checked && it.picked.size >= it.q.a.length) { inp.checked = false; return; }
+      inp.checked ? it.picked.add(v) : it.picked.delete(v);
+    } else {
+      it.picked = new Set([v]);
+    }
+    box.querySelectorAll(".opt").forEach((l) => l.classList.toggle("picked", l.querySelector("input").checked));
+    onChange();
+  }));
+}
+
+function pickByKey(box, key) {
+  const k = LETTERS.indexOf(key.toUpperCase());
+  const inputs = box ? box.querySelectorAll("input:not(:disabled)") : [];
+  if (k < 0 || k >= inputs.length) return false;
+  inputs[k].click();
+  return true;
+}
+
+/* ---------- navigation ---------- */
+let current = "home";
+function show(view) {
+  current = view;
+  document.querySelectorAll(".view").forEach((v) => (v.hidden = v.id !== "v-" + view));
+  document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+  if (view === "home") renderHome();
+  if (view === "errors") renderErrors();
+  if (view === "exam" && !E) renderExamStart();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("nav button").forEach((b) => (b.onclick = () => show(b.dataset.view)));
+
+/* ---------- home ---------- */
+function renderHome() {
+  $("#h-domains").innerHTML = "<tr><th>Dominio</th><th class='num'>Peso</th></tr>" +
+    Object.entries(DOM).map(([k, [n, w]]) => `<tr><td>D${k} · ${n}</td><td class="num">${w}%</td></tr>`).join("");
+  $("#h-scen").innerHTML = Object.entries(SCEN).map(([k, s]) =>
+    `<details class="scen"><summary>Scenario ${k}: ${s.name} <span class="muted">· ${TRAIN.filter((q) => q.s == k).length} di allenamento + ${SIM.filter((q) => q.s == k).length} di simulazione · domini ${s.d.map((d) => "D" + d).join(", ")}</span></summary><p>${fmt(s.text)}</p></details>`).join("");
+  const seen = QB.filter((q) => stats[q.id]);
+  const rows = Object.keys(DOM).map((d) => {
+    const qs = QB.filter((q) => q.d == d && stats[q.id]);
+    const last = qs.filter((q) => stats[q.id].last).length;
+    return `<tr><td>D${d} · ${DOM[d][0]}</td><td class="num">${qs.length}/${QB.filter((q) => q.d == d).length}</td><td class="num">${qs.length ? pct(last, qs.length) + "%" : "–"}</td><td>${bar(qs.length ? pct(last, qs.length) : 0)}</td></tr>`;
+  }).join("");
+  const hist = history.slice(-8).reverse().map((h) =>
+    `<tr><td>${new Date(h.date).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" })}</td><td>${h.kind}</td><td class="num">${h.ok}/${h.n}</td><td class="num">${pct(h.ok, h.n)}%</td></tr>`).join("");
+  $("#h-progress").innerHTML = `<div class="card">
+    <p>Allenamento: viste <strong>${TRAIN.filter((q) => stats[q.id]).length}/${TRAIN.length}</strong>. Simulazione: mai viste <strong>${SIM.filter((q) => !stats[q.id]).length}/${SIM.length}</strong>, bastano per altre <strong>${freshExams(4, 15)}</strong> simulazioni complete tutte nuove.</p>
+    <p class="muted">Domande viste in totale: ${seen.length}/${QB.length}. Percentuale = risposte giuste all'ultimo tentativo.</p>
+    <table><tr><th>Dominio</th><th class="num">Viste</th><th class="num">Giuste</th><th></th></tr>${rows}</table>
+    ${hist ? `<h3>Simulazioni</h3><table><tr><th>Quando</th><th>Tipo</th><th class="num">Giuste</th><th class="num">%</th></tr>${hist}</table>` : ""}
+  </div>`;
+}
+
+/* ---------- practice ---------- */
+$("#p-s").innerHTML = `<option value="all">Tutti</option>` + Object.entries(SCEN).map(([k, s]) => `<option value="${k}">${k}. ${s.name}</option>`).join("");
+$("#p-d").innerHTML = `<option value="all">Tutti</option>` + Object.entries(DOM).map(([k, [n]]) => `<option value="${k}">D${k} · ${n}</option>`).join("");
+
+let P = null;
+function startPractice(ids) {
+  const s = $("#p-s").value, d = $("#p-d").value, f = $("#p-f").value;
+  const pool = ids
+    ? QB.filter((q) => ids.includes(q.id))
+    : TRAIN.filter((q) => (s === "all" || q.s == s) && (d === "all" || q.d == d) &&
+        (f === "all" || (f === "new" && !stats[q.id]) || (f === "wrong" && stats[q.id] && !stats[q.id].last)));
+  if (!pool.length) { P = null; $("#p-area").innerHTML = `<p class="muted">Nessuna domanda con questi filtri.</p>`; return; }
+  P = { queue: shuffle(pool).map(prepare), i: 0, checked: false, ok: 0, done: 0 };
+  renderPractice();
+}
+function renderPractice() {
+  const area = $("#p-area");
+  if (P.i >= P.queue.length) {
+    area.innerHTML = `<div class="card"><h3 style="margin-top:0">Serie completata</h3><p class="verdict">${P.ok}/${P.done} corrette (${pct(P.ok, P.done)}%)</p><div class="actions" style="justify-content:flex-start"><button class="primary" id="p-again">Nuova serie</button></div></div>`;
+    $("#p-again").onclick = () => startPractice();
+    P = null;
+    return;
+  }
+  const it = P.queue[P.i];
+  area.innerHTML = `<p class="progress">Domanda ${P.i + 1} di ${P.queue.length} · corrette ${P.ok}/${P.done}</p>
+    <details class="scen"><summary>Scenario ${it.q.s}: ${SCEN[it.q.s].name}</summary><p>${fmt(SCEN[it.q.s].text)}</p></details>
+    <div class="card" id="p-q">${qHTML(it, P.checked)}</div>
+    <div class="actions">${P.checked ? `<button class="primary" id="p-next">Avanti →</button>` : `<button class="primary" id="p-check" disabled>Verifica</button>`}</div>`;
+  if (P.checked) {
+    $("#p-next").onclick = () => { P.i++; P.checked = false; renderPractice(); window.scrollTo(0, 0); };
+    return;
+  }
+  wire($("#p-q"), it, () => ($("#p-check").disabled = it.picked.size !== it.q.a.length));
+  $("#p-check").onclick = () => {
+    const ok = isCorrect(it);
+    record(it.q, ok);
+    P.done++; if (ok) P.ok++;
+    P.checked = true;
+    renderPractice();
+  };
+}
+$("#p-start").onclick = () => startPractice();
+
+/* ---------- exam ---------- */
+let E = null;
+const unseenByScen = () => Object.fromEntries(Object.keys(SCEN).map((s) => [s, SIM.filter((q) => q.s == s && !stats[q.id]).length]));
+const freshIn = (nScen, perScen, u = unseenByScen()) =>
+  Object.values(u).sort((a, b) => b - a).slice(0, nScen).reduce((t, n) => t + Math.min(n, perScen), 0);
+function freshExams(nScen, perScen) {
+  const u = unseenByScen();
+  let n = 0;
+  for (;;) {
+    const top = Object.keys(u).sort((a, b) => u[b] - u[a]).slice(0, nScen);
+    if (top.some((s) => u[s] < perScen)) return n;
+    top.forEach((s) => (u[s] -= perScen));
+    n++;
+  }
+}
+function renderExamStart() {
+  const unseen = SIM.filter((q) => !stats[q.id]).length;
+  const note = (nScen) => {
+    const old = nScen * 15 - freshIn(nScen, 15);
+    return old ? `<p class="warn">Contiene ${old} domande già viste: le domande nuove non bastano.</p>` : `<p class="muted">Tutte domande mai viste.</p>`;
+  };
+  $("#e-area").innerHTML = `<h1>Simulazione d'esame</h1>
+    <p>Domande di simulazione mai viste: <strong>${unseen}/${SIM.length}</strong>. Non compaiono mai in allenamento.</p>
+    <div class="grid2">
+      <div class="card"><h3 style="margin-top:0">Completa</h3><p>4 scenari su 6, 15 domande ciascuno: 60 domande in 120 minuti, come la durata dell'esame. Correzione solo alla consegna.</p>${note(4)}<button class="primary" id="e-full">Inizia (120 min)</button></div>
+      <div class="card"><h3 style="margin-top:0">Breve</h3><p>2 scenari, 15 domande ciascuno: 30 domande in 60 minuti, stesso ritmo.</p>${note(2)}<button class="sec" id="e-half">Inizia (60 min)</button></div>
+    </div>
+    <p class="muted">Puoi segnare le domande da rivedere, saltarle e tornarci dalla griglia. Allo scadere del tempo la prova viene consegnata da sola. Le domande senza risposta contano come sbagliate.</p>`;
+  $("#e-full").onclick = () => startExam(4, 15, 120, "Completa");
+  $("#e-half").onclick = () => startExam(2, 15, 60, "Breve");
+}
+// Simulations draw only from the simulation pool, scenarios with the most never-seen questions first,
+// never-seen questions first within each scenario.
+function startExam(nScen, perScen, minutes, kind) {
+  const u = unseenByScen();
+  const scen = shuffle(Object.keys(SCEN).map(Number)).sort((a, b) => u[b] - u[a]).slice(0, nScen);
+  const items = scen.flatMap((s) => {
+    const qs = SIM.filter((q) => q.s === s);
+    return [...shuffle(qs.filter((q) => !stats[q.id])), ...shuffle(qs.filter((q) => stats[q.id]))].slice(0, perScen).map(prepare);
+  });
+  E = { items, i: 0, start: Date.now(), end: Date.now() + minutes * 60000, kind, confirming: false };
+  E.timer = setInterval(tick, 1000);
+  renderExam();
+}
+function tick() {
+  if (!E) return;
+  const left = E.end - Date.now();
+  const t = $("#e-timer");
+  if (t) { t.textContent = mmss(Math.max(0, left)); t.classList.toggle("low", left < 10 * 60000); }
+  if (left <= 0) submitExam();
+}
+function paletteHTML() {
+  let prev = null;
+  return E.items.map((it, k) => {
+    const sep = it.q.s !== prev ? `<div class="sep">Scenario ${it.q.s}: ${SCEN[it.q.s].name}</div>` : "";
+    prev = it.q.s;
+    const cls = [it.picked.size === it.q.a.length ? "ans" : "", it.flag ? "flag" : "", k === E.i ? "cur" : ""].join(" ");
+    return `${sep}<button class="${cls}" data-k="${k}">${k + 1}</button>`;
+  }).join("");
+}
+function renderExam() {
+  const it = E.items[E.i];
+  const answered = E.items.filter((x) => x.picked.size === x.q.a.length).length;
+  const firstOfScen = E.i === 0 || E.items[E.i - 1].q.s !== it.q.s;
+  $("#e-area").innerHTML = `<div class="exambar"><span id="e-timer"></span><span>Domanda ${E.i + 1}/${E.items.length}</span><span class="muted" id="e-count">Risposte ${answered}/${E.items.length}</span><span style="flex:1"></span><button class="sec" id="e-submit">Consegna</button></div>
+    <div id="e-confirm"></div>
+    <div class="palette" id="e-pal">${paletteHTML()}</div>
+    <details class="scen"${firstOfScen ? " open" : ""}><summary>Scenario ${it.q.s}: ${SCEN[it.q.s].name}</summary><p>${fmt(SCEN[it.q.s].text)}</p></details>
+    <div class="card" id="e-q">${qHTML(it, false)}</div>
+    <div class="actions"><button class="sec" id="e-prev"${E.i === 0 ? " disabled" : ""}>← Precedente</button><button class="sec" id="e-flag">${it.flag ? "Togli segno" : "Segna da rivedere"}</button><button class="primary" id="e-next"${E.i === E.items.length - 1 ? " disabled" : ""}>Successiva →</button></div>`;
+  tick();
+  const refresh = () => {
+    $("#e-pal").innerHTML = paletteHTML();
+    $("#e-count").textContent = `Risposte ${E.items.filter((x) => x.picked.size === x.q.a.length).length}/${E.items.length}`;
+  };
+  wire($("#e-q"), it, refresh);
+  $("#e-pal").onclick = (ev) => { const k = ev.target.dataset.k; if (k !== undefined) goto(Number(k)); };
+  $("#e-prev").onclick = () => goto(E.i - 1);
+  $("#e-next").onclick = () => goto(E.i + 1);
+  $("#e-flag").onclick = () => { it.flag = !it.flag; renderExam(); };
+  $("#e-submit").onclick = askSubmit;
+  if (E.confirming) askSubmit();
+}
+function goto(k) {
+  if (k < 0 || k >= E.items.length) return;
+  E.i = k;
+  renderExam();
+}
+function askSubmit() {
+  E.confirming = true;
+  const missing = E.items.filter((x) => x.picked.size !== x.q.a.length).length;
+  const flagged = E.items.filter((x) => x.flag).length;
+  $("#e-confirm").innerHTML = `<div class="card confirm"><p>${missing ? `<strong>${missing}</strong> domande senza risposta completa. ` : "Hai risposto a tutte le domande. "}${flagged ? `<strong>${flagged}</strong> segnate da rivedere. ` : ""}Consegnare?</p><div class="actions" style="justify-content:flex-start"><button class="primary" id="e-yes">Consegna</button><button class="sec" id="e-no">Continua la prova</button></div></div>`;
+  $("#e-yes").onclick = submitExam;
+  $("#e-no").onclick = () => { E.confirming = false; $("#e-confirm").innerHTML = ""; };
+}
+function submitExam() {
+  clearInterval(E.timer);
+  const done = E;
+  E = null;
+  done.items.forEach((it) => record(it.q, isCorrect(it)));
+  const ok = done.items.filter(isCorrect).length, n = done.items.length;
+  history.push({ date: Date.now(), kind: done.kind, ok, n });
+  localStorage.setItem(HIST_KEY, JSON.stringify(history));
+  renderResults(done, ok, n);
+  if (current !== "exam") show("exam");
+}
+function breakdown(items, key, label) {
+  const groups = {};
+  items.forEach((it) => { const g = (groups[it.q[key]] ||= { ok: 0, n: 0 }); g.n++; if (isCorrect(it)) g.ok++; });
+  return Object.entries(groups).map(([k, g]) =>
+    `<tr><td>${label(k)}</td><td class="num">${g.ok}/${g.n}</td><td class="num">${pct(g.ok, g.n)}%</td><td>${bar(pct(g.ok, g.n))}</td></tr>`).join("");
+}
+function renderResults(done, ok, n) {
+  const p = pct(ok, n);
+  const verdict = p >= 80 ? "Buon margine." : p >= 75 ? "Al limite dell'obiettivo: ripassa i domini sotto il 75%." : "Sotto l'obiettivo: ripassa teoria ed errori dei domini più deboli.";
+  const used = mmss(Math.min(Date.now(), done.end) - done.start);
+  $("#e-area").innerHTML = `<h1>Risultato</h1>
+    <div class="card"><p class="verdict">${ok}/${n} corrette · ${p}%</p><p>${verdict}</p>
+    <p class="muted">Tempo usato ${used}. La soglia reale è 720 su una scala scalata 100–1.000, non una percentuale: usa 75–80% di risposte giuste come obiettivo prudente.</p></div>
+    <div class="grid2">
+      <div class="card"><h3 style="margin-top:0">Per dominio</h3><table>${breakdown(done.items, "d", (k) => `D${k} · ${DOM[k][0]}`)}</table></div>
+      <div class="card"><h3 style="margin-top:0">Per scenario</h3><table>${breakdown(done.items, "s", (k) => `S${k} · ${SCEN[k].name}`)}</table></div>
+    </div>
+    <div class="actions" style="justify-content:flex-start"><button class="primary" id="r-new">Nuova simulazione</button><label class="muted"><input type="checkbox" id="r-only" checked> Mostra solo le sbagliate</label></div>
+    <div id="r-list"></div>`;
+  const list = () => {
+    const only = $("#r-only").checked;
+    $("#r-list").innerHTML = done.items.map((it, k) => (only && isCorrect(it) ? "" : `<div class="card"><p class="progress">Domanda ${k + 1}</p>${qHTML(it, true)}</div>`)).join("") ||
+      `<p class="muted">Nessun errore.</p>`;
+  };
+  $("#r-only").onchange = list;
+  $("#r-new").onclick = renderExamStart;
+  list();
+}
+
+/* ---------- errors ---------- */
+function renderErrors() {
+  const wrong = QB.filter((q) => stats[q.id] && !stats[q.id].last);
+  if (!wrong.length) {
+    $("#err-area").innerHTML = `<p class="muted">Nessuna domanda sbagliata all'ultimo tentativo.</p>${Object.keys(stats).length ? `<button class="sec" id="err-reset">Azzera tutti i progressi</button><div id="err-confirm"></div>` : ""}`;
+  } else {
+    const byScen = Object.keys(SCEN).map((s) => {
+      const qs = wrong.filter((q) => q.s == s);
+      return qs.length ? `<h3>Scenario ${s}: ${SCEN[s].name} (${qs.length})</h3><ul class="tight">${qs.map((q) => `<li>${fmt(q.q.length > 160 ? q.q.slice(0, 160) + "…" : q.q)} <span class="muted">· D${q.d}</span></li>`).join("")}</ul>` : "";
+    }).join("");
+    $("#err-area").innerHTML = `<div class="actions" style="justify-content:flex-start"><button class="primary" id="err-go">Allenati su queste ${wrong.length}</button><button class="sec" id="err-reset">Azzera tutti i progressi</button></div><div id="err-confirm"></div>${byScen}`;
+    $("#err-go").onclick = () => { show("practice"); startPractice(wrong.map((q) => q.id)); };
+  }
+  const reset = $("#err-reset");
+  if (reset) reset.onclick = () => {
+    $("#err-confirm").innerHTML = `<div class="card confirm"><p>Cancellare statistiche e storico delle simulazioni?</p><div class="actions" style="justify-content:flex-start"><button class="primary" id="err-yes">Cancella</button><button class="sec" id="err-no">Annulla</button></div></div>`;
+    $("#err-yes").onclick = () => {
+      Object.keys(stats).forEach((k) => delete stats[k]);
+      history.length = 0;
+      localStorage.removeItem(STATS_KEY);
+      localStorage.removeItem(HIST_KEY);
+      renderErrors();
+    };
+    $("#err-no").onclick = () => ($("#err-confirm").innerHTML = "");
+  };
+}
+
+/* ---------- keyboard ---------- */
+document.addEventListener("keydown", (ev) => {
+  if (ev.ctrlKey || ev.metaKey || ev.altKey || ev.target.tagName === "SELECT") return;
+  if (current === "practice" && P) {
+    if (ev.key === "Enter") { const b = $("#p-check") || $("#p-next"); if (b && !b.disabled) { ev.preventDefault(); b.click(); } return; }
+    if (pickByKey($("#p-q"), ev.key)) ev.preventDefault();
+  }
+  if (current === "exam" && E) {
+    if (ev.key === "ArrowRight") return goto(E.i + 1);
+    if (ev.key === "ArrowLeft") return goto(E.i - 1);
+    if (pickByKey($("#e-q"), ev.key)) ev.preventDefault();
+  }
+});
+
+window.addEventListener("beforeunload", (ev) => { if (E) ev.preventDefault(); });
+show("home");
+</script>
+</body>
+</html>

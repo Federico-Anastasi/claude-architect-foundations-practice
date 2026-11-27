@@ -1,0 +1,81 @@
+// Scenario 6 · Structured Data Extraction · hard simulation questions
+Q({ id: "h6-01", s: 6, d: 4, t: "4.5", sim: 1, hard: 1,
+  q: "A customs broker must have every incoming declaration extracted and validated within 36 hours of arrival. Documents are collected into a Message Batches submission every 4 hours, and a batch can take up to 24 hours to complete. About 5% of results fail semantic validation and need a corrective request containing the original document, the failed extraction and the validation errors. The broker wants to keep the 50% batch discount wherever the 36-hour limit still allows it. Which design guarantees the deadline?",
+  o: [
+    "Keep the 4-hour batch submissions for the first pass and send each corrective request for a failed document through the synchronous API as soon as validation fails.",
+    "Keep the 4-hour batch submissions and add each failed document to the next scheduled batch, using its `custom_id` to correlate the corrected result with the original.",
+    "Shorten the submission interval to 15 minutes, so that the first batch and one corrective batch can both complete inside the 36-hour limit.",
+    "Move the whole workload to the synchronous API, because a corrective step cannot be part of a batch workflow and the deadline must be guaranteed.",
+  ], a: [0],
+  e: "Il vincolo decisivo è il tempo: con invii ogni 4 ore il primo passaggio batch richiede al massimo 4 + 24 = 28 ore, quindi restano solo 8 ore su 36, mentre un secondo batch correttivo può durare altre 24 ore. Le correzioni (5%) vanno quindi fatte con l'API sincrona, che per volumi piccoli costa poco e risponde subito, mentre il 95% resta in batch e conserva lo sconto del 50%. Accodare i falliti al batch successivo (4 + 24 + 4 + 24 = 56 ore) o ridurre l'intervallo a 15 minuti (circa 48 ore e mezza) sfora comunque il limite, perché la durata massima del batch non si accorcia con invii più frequenti. Passare tutto al sincrono rispetta la scadenza ma rinuncia allo sconto proprio sui documenti che nei tempi ci stanno; l'affermazione che la correzione non possa far parte di un flusso batch è falsa, semplicemente qui non rientra nelle 36 ore." });
+
+Q({ id: "h6-02", s: 6, d: 4, t: "4.3", sim: 1, hard: 1,
+  q: "An audit of your contract-extraction schema (tool use with a strict JSON schema) finds two problems. First, `auto_renewal_notice_days` is a required integer, but 18% of contracts contain no auto-renewal clause, and for those the model returns 30; some contracts do state a notice period of zero days. Second, `contract_type` is an enum of six values; 9% of contracts are clearly licensing or franchise agreements, the model always forces them into the closest value, and the product team wants to see which new kinds keep appearing. Reviewers say they are never unsure what kind of contract it is. Which TWO changes fix these problems?",
+  o: [
+    "Make `auto_renewal_notice_days` optional and nullable, so the model can return null when the contract has no auto-renewal clause.",
+    "Add an \"other\" value to the `contract_type` enum together with a `contract_type_detail` string that names the actual kind of contract.",
+    "Add an \"unclear\" value to the `contract_type` enum so that contracts the model cannot place are identified and routed to human review.",
+    "Keep `auto_renewal_notice_days` required and instruct the model to return 0 when no clause exists, so that the field is always a valid integer.",
+    "Make `contract_type` nullable, so that contracts outside the six values return null instead of being forced into the closest category.",
+  ], a: [0, 1],
+  e: "I due problemi richiedono meccanismi diversi. Un campo obbligatorio per un'informazione che può non esistere spinge il modello a inventare un valore (qui 30): renderlo opzionale e nullable gli permette di restituire null. `contract_type` fallisce per copertura dell'enum, non per ambiguità: i tipi sono chiari e ne compaiono di nuovi, quindi serve \"other\" più un campo di dettaglio, che permette anche di vedere quali tipi meritano un valore proprio. \"unclear\" serve per i casi davvero ambigui, che il testo esclude; rendere nullable `contract_type` scarterebbe un'informazione presente nel documento; restituire 0 confonde l'assenza di clausola con i contratti che dichiarano davvero preavviso zero." });
+
+Q({ id: "h6-03", s: 6, d: 4, t: "4.4", sim: 1, hard: 1,
+  q: "A nightly Message Batches job extracts 40,000 loan agreements. In all, 1,900 results fail semantic validation: 1,150 have `signing_date` in a non-ISO format, 250 have the borrower's address in `guarantor_address`, and 500 lack the mandatory `maturity_date`, which according to the error log appears only in a repayment schedule issued by the lender's back office and never sent to the pipeline. How should you handle the failures without reprocessing everything?",
+  o: [
+    "Submit a follow-up batch for the 1,400 format and placement failures, each with the agreement, failed extraction and errors; make `maturity_date` nullable and route those 500 to review.",
+    "Submit a follow-up batch for all 1,900 failed `custom_id`s, each with the agreement, the failed extraction and its validation errors, and keep repeating the batch until every record passes validation.",
+    "Re-run all 40,000 agreements in a new batch with a refined prompt that adds date-format rules and a rule requiring `maturity_date` to be extracted for every single agreement.",
+    "Submit a follow-up batch only for the 1,150 date-format failures and route the other 750 to human review, because only simple format errors are reliably fixed by a retry.",
+  ], a: [0],
+  e: "Gli errori di formato (data non ISO) e di struttura (indirizzo nel campo sbagliato) sono quelli che un retry con documento, estrazione fallita ed errore specifico risolve, e si reinviano solo i `custom_id` falliti. Per i 500 senza `maturity_date` l'informazione non è nell'input: ripetere il retry non può riuscire e, finché la validazione resta obbligatoria, spinge il modello a inventare una data; si rende il campo nullable e si manda il record a revisione. Rielaborare tutti i 40.000 documenti spreca costo per un problema che riguarda il 5% e non risolve l'assenza del dato. Mandare a revisione anche i 250 errori di posizionamento sposta sulle persone un lavoro che il retry sa fare, perché sono errori strutturali." });
+
+Q({ id: "h6-04", s: 6, d: 4, t: "4.3", sim: 1, hard: 1,
+  q: "A synchronous service defines two tools, `extract_invoice` and `lookup_vendor` (used later for enrichment). Its first request forces `extract_invoice` with `tool_choice: {\"type\": \"tool\", \"name\": \"extract_invoice\"}`. When validation fails, a retry request carries the original document, the failed extraction and the validation error, keeps both tools in the list and leaves `tool_choice` at its default. Logs show that every first response is a `tool_use` block, but about 14% of retry responses are plain text such as 'Here is the corrected invoice: ...' that the parser rejects. What is the most reliable fix?",
+  o: [
+    "Send the retry request with `tool_choice` forcing `extract_invoice` again, because the retry must return a corrected extraction.",
+    "Send the retry request with `tool_choice: {\"type\": \"any\"}`, so that the model is guaranteed to call a tool instead of answering in text.",
+    "Add a sentence to the retry prompt saying that the corrected extraction must be returned by calling `extract_invoice`, never as text.",
+    "Extend the parser so that, when a retry response contains no tool call, it extracts the corrected invoice from the JSON found in the text.",
+  ], a: [0],
+  e: "Il log indica la causa: solo le richieste di retry, che usano `auto`, rispondono con testo, perché con `auto` il modello può scegliere di non chiamare alcuno strumento. Qui il retry deve produrre di nuovo una chiamata a `extract_invoice`, quindi la scelta forzata è l'unica garanzia deterministica. `any` garantisce una chiamata ma non quale: con `lookup_vendor` ancora in elenco il modello potrebbe chiamare quello senza correggere nulla. Una frase nel prompt è una garanzia probabilistica; estrarre il JSON dal testo reintroduce il parsing fragile che l'uso di uno strumento con schema serve a eliminare." });
+
+Q({ id: "h6-05", s: 6, d: 4, t: "4.1", sim: 1, hard: 1,
+  q: "Your vendor-invoice pipeline raises `bank_details_changed` when an invoice's bank details differ from the vendor master record. Reviewers dismiss 70% of these flags, and a sample shows that nearly all dismissed ones differ only in formatting (spaces in the IBAN, upper- versus lower-case letters, a 'Bank:' prefix). The flag is part of the company's payment-fraud controls and auditors require it to remain active for every vendor, so it cannot be switched off even temporarily. Reviewers have started approving flags in bulk. What is the most effective change?",
+  o: [
+    "Rewrite the instruction with an explicit criterion: flag only when the account number or beneficiary name differs after ignoring spaces, case and labels, with examples.",
+    "Tell the model to raise `bank_details_changed` only when it is highly confident that the bank details have really changed compared with the vendor master record.",
+    "Disable `bank_details_changed` for now and re-enable it once its criteria have been rewritten, so that reviewers regain trust in the other flags again.",
+    "Add a self-reported confidence score to each flag and show reviewers only the flags whose score is above a calibrated cutoff, to cut the review volume.",
+  ], a: [0],
+  e: "Qui le soluzioni di solito giuste sono due, ma il vincolo dell'audit esclude la disattivazione temporanea: la categoria deve restare attiva e quindi va corretta la sua causa, un criterio vago che non distingue le differenze di formato da quelle sostanziali. Un criterio categorico con esempi dei due casi riduce i falsi positivi alla radice. Chiedere \"alta confidenza\" non migliora la precisione rispetto a criteri specifici, e una confidenza dichiarata dal modello è un proxy poco affidabile che nasconderebbe anche flag di frode reali, proprio quelli che il controllo deve mostrare." });
+
+Q({ id: "h6-06", s: 6, d: 5, t: "5.5", sim: 1, hard: 1,
+  q: "You will auto-approve a field only if its accuracy is at least 99%, with the least human review. On a labeled validation set covering all document types and scan qualities you measured, per field, the accuracy of extractions whose model-reported confidence is at or above a cutoff (in brackets, the share of all extractions reaching it). `invoice_date`: 0.85 gives 99.2% (90%), 0.92 gives 99.6% (75%), 0.97 gives 99.9% (50%). `total_amount`: 0.85 gives 97.9% (81%), 0.92 gives 99.3% (63%), 0.97 gives 99.8% (35%). `iban`: 0.85 gives 94.0% (78%), 0.92 gives 97.6% (52%), 0.97 gives 99.4% (21%). Extractions below the cutoff go to review. Which routing rule fits?",
+  o: [
+    "Per-field cutoffs: 0.85 for `invoice_date`, 0.92 for `total_amount` and 0.97 for `iban`, the lowest cutoff at which each field reaches 99%.",
+    "A single cutoff of 0.92 for all three fields, which gives the best balance between accuracy and the share of extractions approved automatically.",
+    "A single cutoff of 0.97 for all three fields, so that every field clears the 99% target with a comfortable margin and no field needs rechecking.",
+    "Per-field cutoffs: 0.92 for `invoice_date` and `total_amount` and 0.97 for `iban`, keeping a safety margin above each field's lowest passing cutoff.",
+  ], a: [0],
+  e: "Soglie calibrate sul set etichettato vanno scelte per campo, perché la stessa confidenza dichiarata corrisponde ad accuratezze diverse: il vincolo è raggiungere il 99% con la minor revisione umana, quindi per ogni campo si prende la soglia più bassa che lo raggiunge (0,85 per `invoice_date`, 0,92 per `total_amount`, 0,97 per `iban`). Una soglia unica a 0,92 lascia `iban` al 97,6%, sotto l'obiettivo; una soglia unica a 0,97 o un margine di sicurezza sugli altri campi rispettano l'obiettivo ma mandano in revisione più estrazioni di quante servano, e la capacità dei revisori è limitata." });
+
+Q({ id: "h6-07", s: 6, d: 5, t: "5.5", sim: 1, hard: 1,
+  q: "Policy allows auto-approval of high-confidence extractions only for segments whose measured accuracy reaches 97%. On a labeled validation set, accuracy by document type is 98.9% for invoices, 98.4% for receipts and 97.6% for faxed purchase orders (4% of volume); accuracy by field is at least 98.5% for each of the 12 fields. The plan is to enable auto-approval for every type and field. A reviewer who handles faxed purchase orders reports that she keeps correcting `bank_account` values on them. What should you do before enabling auto-approval?",
+  o: [
+    "Break accuracy down by field within each document type on the labeled set, check `bank_account` on faxed purchase orders, and keep review for every combination below 97%.",
+    "Enable auto-approval everywhere, since each type and each field meets the 97% target, and use a stratified sample of high-confidence extractions to catch any problem later.",
+    "Raise the confidence cutoff to 0.99 for all fields and all document types, which should remove the errors from the weakest combination as well.",
+    "Enable auto-approval for all fields except `bank_account`, which stays under review for every document type, because the reviewer's report shows that field is unreliable.",
+  ], a: [0],
+  e: "Le medie per tipo e per campo possono nascondere una combinazione debole: `bank_account` sui fax può essere molto sotto il 97% e restare invisibile in entrambe le medie, perché i fax sono il 4% del volume. La policy richiede l'accuratezza misurata per segmento prima di ridurre la revisione, quindi occorre l'analisi incrociata tipo per campo, che potrebbe mostrare anche altre celle deboli. Abilitare tutto e campionare dopo ignora un'evidenza già disponibile; alzare la soglia a 0,99 non è misurato né mirato; tenere sotto revisione solo `bank_account` lascia gli altri campi dei fax non verificati a livello di combinazione." });
+
+Q({ id: "h6-08", s: 6, d: 5, t: "5.3", sim: 1, hard: 1,
+  q: "A subagent extracts a loan packet of 12 documents. The OCR service is down for the tax return: after local retries the subagent returns a structured error (failure type `ocr_unavailable`, what was attempted, no partial output, alternative: retry later). The other 11 documents are extracted. `declared_income` was filled from the pay stubs with a calibrated confidence of 0.94, above the 0.90 auto-approval threshold, but lending policy requires every `declared_income` to be confirmed against the tax return. Reviewer time is scarce and should be used only where the policy requires it. What should the coordinator do?",
+  o: [
+    "Deliver the packet with a coverage note that the tax return is unavailable, hold `declared_income` for review as unconfirmed, auto-approve the other fields and queue the tax return for a retry.",
+    "Auto-approve `declared_income`, because its calibrated confidence is above the threshold, and attach the tax return to the record later if the OCR service recovers.",
+    "Hold the whole packet and resubmit all 12 documents for extraction once the OCR service is available, so that the record is complete and consistent when released.",
+    "Send the whole packet to human review together with the error details, since one document could not be processed and the record cannot be fully trusted.",
+  ], a: [0],
+  e: "L'errore strutturato permette un recupero mirato: il coordinatore prosegue con i risultati parziali e annota la copertura, cioè quali risultati hanno una fonte non disponibile. Qui l'unico campo che dipende dalla dichiarazione dei redditi è `declared_income`, e la policy lo vuole confermato, quindi resta in attesa di revisione come non confermato anche se la confidenza è alta: la confidenza non sostituisce una verifica richiesta. Gli altri campi seguono il normale flusso e la dichiarazione viene riprovata più tardi. Bloccare tutto e rifare i 12 documenti è la risposta \"terminare per un solo errore\", mentre mandare l'intero pacchetto a revisione consuma tempo dei revisori su campi che non ne hanno bisogno." });
