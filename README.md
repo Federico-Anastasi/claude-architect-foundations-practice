@@ -1,7 +1,9 @@
 # Claude Certified Architect – Foundations · practice
 
 An **unofficial** study page for the Claude Certified Architect – Foundations exam (exam code CCAR-F): condensed
-theory, practice questions, timed mock exams and error review. One static HTML file: no install, no server.
+theory, practice questions, timed mock exams and error review. One static HTML file: no install, no server. The
+official exam guide is on the
+[certification page](https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification).
 
 The questions are in English, like the guide's sample questions. The interface, the theory and the explanations are
 in Italian.
@@ -63,7 +65,9 @@ statistics, mistakes) does not depend on the content.
 ## Source and disclaimer
 
 Unofficial material, not affiliated with or endorsed by Anthropic. It is based only on the public *Claude Certified
-Architect – Foundations Exam Guide* (version 1.1): the 6 scenario descriptions and 12 sample questions come from it
+Architect – Foundations Exam Guide* (version 1.1), which can be downloaded from the
+[official certification page](https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification)
+on Anthropic Academy, together with registration and exam policies. The 6 scenario descriptions and 12 sample questions come from it
 and remain Anthropic's. All other questions were written for practice and are not exam questions. The guide may
 change: where they differ, the official version in force prevails.
 
